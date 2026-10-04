@@ -1,7 +1,7 @@
-import pandas as pd
 from openpyxl import Workbook
 from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
+from openpyxl.worksheet.datavalidation import DataValidation
 
 # -------------------------------------------------------------
 # 1. Timeline Data Definition
@@ -244,6 +244,21 @@ for row_idx, item in enumerate(timeline_data, start=4):
         elif item["Status"] == "In Progress" and col_idx == 8:
             cell.fill = PatternFill(start_color="FEF3C7", end_color="FEF3C7", fill_type="solid")
             cell.font = Font(name="Calibri", size=10, bold=True, color="92400E")
+
+# Add a dropdown to every task's Status cell.
+status_validation = DataValidation(
+    type="list",
+    formula1='"Pending,In Progress,Completed,CRITICAL"',
+    allow_blank=False,
+)
+status_validation.errorTitle = "Invalid status"
+status_validation.error = "Select a status from the dropdown list."
+status_validation.promptTitle = "Task status"
+status_validation.prompt = "Choose the task status."
+status_validation.showErrorMessage = True
+status_validation.showInputMessage = True
+ws.add_data_validation(status_validation)
+status_validation.add(f"H4:H{ws.max_row}")
 
 # Auto-fit Column Widths cleanly
 for col in ws.columns:
